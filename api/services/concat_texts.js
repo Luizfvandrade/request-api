@@ -3,45 +3,20 @@ const fs = require("fs");
 
 const base_url = process.env.API_MINI_HOST;
 
-module.exports = (app) => {
+module.exports = () => {
   const concat = {};
 
-  concat.concat_texts = () => {
-    new Promise((resolve, reject) => resolve('Done'))
-      .then(() => {
-        do_request(`${base_url}/text/1`);
-        delay(5000)
-      })
-      .then(() => {
-        do_request(`${base_url}/text/2`)
-        delay(5000)
-      })
-      .then(() => {
-        do_request(`${base_url}/text/3`)
-        delay(5000)
-      })
-      .catch((error) => {
-        console.log(error)
-      })
+  concat.concat_texts = async () => {
+    await do_request(`${base_url}/text/1`);
+    await do_request(`${base_url}/text/2`);
+    await do_request(`${base_url}/text/3`);
   };
-
+  
   do_request = async (url) => {
-    await axios
-      .get(url)
-      .then((response) => {
-        const filePath = "./file/concat.text";
-        fs.appendFileSync(filePath, response.data)
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    const filePath = "./file/concat.text";
+    const res = await axios.get(url)
+    fs.appendFileSync(filePath, res.data)
   };
-
-  delay = (time) => {
-    return new Promise(resolve =>
-      setTimeout(resolve, time)
-    )
-  }
 
   return concat;
 };
