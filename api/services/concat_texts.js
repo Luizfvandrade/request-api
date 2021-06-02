@@ -1,27 +1,47 @@
-const request = require('request');
-const fs = require('fs');
+const axios = require("axios");
+const fs = require("fs");
 
 const base_url = process.env.API_MINI_HOST;
 
 module.exports = (app) => {
   const concat = {};
 
-  concat.concat_texts = async () => {
-    await do_request(
-      `${base_url}/text/3`,
-      await do_request(
-        `${base_url}/text/2`,
-        await do_request(`${base_url}/text/1`)
-      )
-    );
+  concat.concat_texts = () => {
+    new Promise((resolve, reject) => resolve('Done'))
+      .then(() => {
+        do_request(`${base_url}/text/1`);
+        delay(5000)
+      })
+      .then(() => {
+        do_request(`${base_url}/text/2`)
+        delay(5000)
+      })
+      .then(() => {
+        do_request(`${base_url}/text/3`)
+        delay(5000)
+      })
+      .catch((error) => {
+        console.log(error)
+      })
   };
 
   do_request = async (url) => {
-    await request.get(url, (error, response) => {
-      const filePath = './file/concat.text';
-      fs.appendFileSync(filePath, response.body);
-    });
+    await axios
+      .get(url)
+      .then((response) => {
+        const filePath = "./file/concat.text";
+        fs.appendFileSync(filePath, response.data)
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   };
+
+  delay = (time) => {
+    return new Promise(resolve =>
+      setTimeout(resolve, time)
+    )
+  }
 
   return concat;
 };
